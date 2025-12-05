@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login / Cadastro – NugKey Scripts</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .auth-card {
+      background: var(--card-soft);
+      border-radius: var(--radius);
+      padding: 16px 14px;
+      border: 1px solid var(--border);
+      margin-bottom: 14px;
+      font-size: 13px;
+    }
+    .auth-tabs {
+      display: flex;
+      border-radius: 999px;
+      background: #020617;
+      border: 1px solid var(--border);
+      padding: 2px;
+      margin-bottom: 12px;
+    }
+    .auth-tab {
+      flex: 1;
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      color: var(--text-soft);
+      font-size: 13px;
+      padding: 6px 8px;
+      cursor: pointer;
+    }
+    .auth-tab.active {
+      background: linear-gradient(135deg, var(--accent), #4f46e5);
+      color: #fff;
+    }
+    .auth-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .auth-group label {
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+    .auth-group input {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 7px 10px;
+      background: #020617;
+      color: var(--text);
+      font-size: 13px;
+      outline: none;
+    }
+    .auth-group input:focus {
+      border-color: var(--accent);
+    }
+    .small-note {
+      font-size: 11px;
+      color: var(--text-soft);
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <a href="index.html" class="logo-link">
+        <div class="logo">
+          <img src="../logo.png" alt="Logo NugKey Bishop" />
+        </div>
+      </a>
+      <div>
+        <div class="brand-title">NugKey Scripts</div>
+        <div class="brand-sub">Área do usuário</div>
+      </div>
+    </header>
+
+    <main>
+      <section class="auth-card">
+        <div class="auth-tabs">
+          <button id="tab-login" class="auth-tab active" type="button">Entrar</button>
+          <button id="tab-cadastro" class="auth-tab" type="button">Criar conta</button>
+        </div>
+
+        <!-- FORM LOGIN -->
+        <form id="form-login">
+          <div class="auth-group">
+            <label for="login-email">E-mail</label>
+            <input id="login-email" type="email" placeholder="voce@exemplo.com" required />
+          </div>
+
+          <div class="auth-group">
+            <label for="login-senha">Senha</label>
+            <input id="login-senha" type="password" placeholder="Sua senha" required />
+          </div>
+
+          <button class="btn-download" type="submit">
+            <span>Entrar</span>
+            <span class="icon">➜</span>
+          </button>
+
+          <p class="small-note" id="mensagem-login"></p>
+        </form>
+
+        <!-- FORM CADASTRO -->
+        <form id="form-cadastro" style="display:none;">
+          <div class="auth-group">
+            <label for="nome">Nome</label>
+            <input id="nome" type="text" placeholder="Seu nome completo" required />
+          </div>
+
+          <div class="auth-group">
+            <label for="email">E-mail</label>
+            <input id="email" type="email" placeholder="voce@exemplo.com" required />
+          </div>
+
+          <div class="auth-group">
+            <label for="senha">Senha</label>
+            <input id="senha" type="password" placeholder="Mínimo 6 caracteres" required />
+          </div>
+
+          <div class="auth-group">
+            <label for="telefone">Telefone (com DDD, só números)</label>
+            <input id="telefone" type="tel" placeholder="(28)99949-1510" required />
+          </div>
+
+          <button class="btn-download" type="submit">
+            <span>Criar conta</span>
+            <span class="icon">➜</span>
+          </button>
+
+          <p class="small-note" id="mensagem-cadastro"></p>
+        </form>
+      </section>
+    </main>
+
+    <footer>
+      <span>NugKey Scripts</span>
+      <span>Contato: <a href="tel:+5528999491510">(28)99949-1510</a></span>
+    </footer>
+  </div>
+
+  <script type="module">
+    import { auth, db } from "./firebase-config.js";
+    import {
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      updateProfile
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import {
+      doc,
+      setDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const tabLogin = document.getElementById("tab-login");
+    const tabCadastro = document.getElementById("tab-cadastro");
+    const formLogin = document.getElementById("form-login");
+    const formCadastro = document.getElementById("form-cadastro");
+    const msgLogin = document.getElementById("mensagem-login");
+    const msgCadastro = document.getElementById("mensagem-cadastro");
+
+    function ativarAbaLogin() {
+      tabLogin.classList.add("active");
+      tabCadastro.classList.remove("active");
+      formLogin.style.display = "block";
+      formCadastro.style.display = "none";
+      msgLogin.textContent = "";
+      msgCadastro.textContent = "";
+    }
+
+    function ativarAbaCadastro() {
+      tabCadastro.classList.add("active");
+      tabLogin.classList.remove("active");
+      formLogin.style.display = "none";
+      formCadastro.style.display = "block";
+      msgLogin.textContent = "";
+      msgCadastro.textContent = "";
+    }
+
+    tabLogin.addEventListener("click", ativarAbaLogin);
+    tabCadastro.addEventListener("click", ativarAbaCadastro);
+
+    // LOGIN (ENTER funciona por ser submit do form)
+    formLogin.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      msgLogin.textContent = "";
+
+      const email = document.getElementById("login-email").value.trim();
+      const senha = document.getElementById("login-senha").value.trim();
+
+      try {
+        await signInWithEmailAndPassword(auth, email, senha);
+        window.location.href = "index.html";
+      } catch (err) {
+        console.error(err);
+        msgLogin.textContent = "Erro ao entrar: " + err.message;
+      }
+    });
+
+    // CADASTRO (ENTER também funciona)
+    formCadastro.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      msgCadastro.textContent = "";
+
+      const nome = document.getElementById("nome").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const senha = document.getElementById("senha").value.trim();
+      const telefone = document.getElementById("telefone").value.trim();
+
+      // validações
+      if (nome.length < 3) {
+        msgCadastro.textContent = "Digite um nome válido.";
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        msgCadastro.textContent = "E-mail inválido.";
+        return;
+      }
+
+      if (senha.length < 6) {
+        msgCadastro.textContent = "A senha deve ter pelo menos 6 caracteres.";
+        return;
+      }
+
+      const telLimpo = telefone.replace(/\D/g, "");
+      const telRegex = /^[0-9]{10,11}$/;
+      if (!telRegex.test(telLimpo)) {
+        msgCadastro.textContent = "Telefone inválido. Use DDD + número, só dígitos.";
+        return;
+      }
+
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, senha);
+        await updateProfile(cred.user, { displayName: nome });
+
+        await setDoc(doc(db, "users", cred.user.uid), {
+          nome,
+          email,
+          telefone: telLimpo,
+          criadoEm: serverTimestamp()
+        }, { merge: true });
+
+        msgCadastro.textContent = "Conta criada com sucesso! Redirecionando...";
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 1200);
+      } catch (err) {
+        console.error(err);
+        msgCadastro.textContent = "Erro ao cadastrar: " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>

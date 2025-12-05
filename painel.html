@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Painel – Minhas Chaves | NugKey Scripts</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .panel-card {
+      background: var(--card-soft);
+      border-radius: var(--radius);
+      padding: 14px 13px 13px;
+      border: 1px solid var(--border);
+      margin-bottom: 14px;
+      font-size: 13px;
+      color: var(--text-soft);
+    }
+
+    .panel-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+
+    .keys-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .key-card {
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 10px 10px;
+      background: radial-gradient(circle at top left, rgba(15,23,42,0.85), #020617);
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .key-plan {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .key-info {
+      color: var(--text-soft);
+    }
+
+    .key-code {
+      font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 11px;
+      background: #020617;
+      border-radius: 8px;
+      padding: 6px 8px;
+      border: 1px dashed var(--border);
+      word-break: break-all;
+      color: #e5e7eb;
+    }
+
+    .key-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .btn-small {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.65);
+      padding: 5px 9px;
+      background: #020617;
+      color: var(--text);
+      font-size: 11px;
+      text-decoration: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.15s ease,
+                  border-color 0.15s ease,
+                  background-color 0.15s ease,
+                  box-shadow 0.15s ease;
+    }
+
+    .btn-small:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+      background-color: #0d1229;
+      box-shadow: 0 8px 18px rgba(79, 70, 229, 0.45);
+    }
+
+    .logout-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .user-email {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-size: 11px;
+      gap: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <a href="index.html" class="logo-link">
+        <div class="logo">
+          <img src="../logo.png" alt="Logo NugKey Bishop" />
+        </div>
+      </a>
+
+      <div>
+        <div class="brand-title">NugKey Scripts</div>
+        <div class="brand-sub">Painel do usuário</div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btn-logout" class="btn-header" type="button">
+          Sair
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel-card">
+        <div class="logout-row">
+          <div>
+            <div class="panel-title">Minhas chaves</div>
+            <div class="user-email" id="user-email"></div>
+          </div>
+          <div class="pill">
+            <span style="width:7px;height:7px;border-radius:999px;background:#22c55e;"></span>
+            <span>Logado</span>
+          </div>
+        </div>
+
+        <p class="section-sub">
+          Aqui você gera e baixa suas chaves de acesso (<code>token.txt</code>).
+          Neste momento as chaves são liberadas automaticamente, sem pagamento.
+        </p>
+      </section>
+
+      <section class="panel-card">
+        <div class="section-title">Gerar nova chave</div>
+        <p class="section-sub">
+          Escolha um plano abaixo. Ao clicar em <strong>Gerar chave</strong>, uma chave será criada
+          para a sua conta e você poderá baixar o <code>token.txt</code> correspondente.
+        </p>
+
+        <div class="keys-grid">
+          <!-- 1 DIA -->
+          <div class="key-card" data-plano="1d">
+            <div class="key-plan">Plano 1 dia</div>
+            <div class="key-info">
+              Chave curta, ideal para testar o NugKey Scripts no seu ambiente.
+            </div>
+            <div class="key-code" id="code-1d">
+              Nenhuma chave gerada ainda para este plano.
+            </div>
+            <div class="key-actions">
+              <button class="btn-small" data-action="gerar" data-plano="1d">
+                Gerar chave
+              </button>
+              <button class="btn-small" data-action="download" data-plano="1d">
+                Baixar token.txt
+              </button>
+            </div>
+          </div>
+
+          <!-- 7 DIAS -->
+          <div class="key-card" data-plano="7d">
+            <div class="key-plan">Plano 7 dias</div>
+            <div class="key-info">
+              Uma semana de script ativo, bom para eventos e período de testes mais longo.
+            </div>
+            <div class="key-code" id="code-7d">
+              Nenhuma chave gerada ainda para este plano.
+            </div>
+            <div class="key-actions">
+              <button class="btn-small" data-action="gerar" data-plano="7d">
+                Gerar chave
+              </button>
+              <button class="btn-small" data-action="download" data-plano="7d">
+                Baixar token.txt
+              </button>
+            </div>
+          </div>
+
+          <!-- 15 DIAS -->
+          <div class="key-card" data-plano="15d">
+            <div class="key-plan">Plano 15 dias</div>
+            <div class="key-info">
+              Para quem joga com frequência e quer mais conforto sem se preocupar todo dia.
+            </div>
+            <div class="key-code" id="code-15d">
+              Nenhuma chave gerada ainda para este plano.
+            </div>
+            <div class="key-actions">
+              <button class="btn-small" data-action="gerar" data-plano="15d">
+                Gerar chave
+              </button>
+              <button class="btn-small" data-action="download" data-plano="15d">
+                Baixar token.txt
+              </button>
+            </div>
+          </div>
+
+          <!-- 30 DIAS -->
+          <div class="key-card" data-plano="30d">
+            <div class="key-plan">Plano 30 dias</div>
+            <div class="key-info">
+              Um mês inteiro com o script rodando no seu setup.
+            </div>
+            <div class="key-code" id="code-30d">
+              Nenhuma chave gerada ainda para este plano.
+            </div>
+            <div class="key-actions">
+              <button class="btn-small" data-action="gerar" data-plano="30d">
+                Gerar chave
+              </button>
+              <button class="btn-small" data-action="download" data-plano="30d">
+                Baixar token.txt
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-card">
+        <div class="section-title">Importante</div>
+        <p class="section-sub">
+          • As chaves geradas aqui são de uso <strong>exclusivo da sua conta</strong>.<br>
+          • Faça backup do <code>token.txt</code> depois de baixar.<br>
+          • Se precisar resetar ou migrar uma chave, entre em contato diretamente com o suporte.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <span>NugKey Scripts</span>
+      <span>Contato: <a href="tel:+5528999491510">(28)99949-1510</a></span>
+    </footer>
+  </div>
+
+  <script type="module">
+    import { auth, db } from "./firebase-config.js";
+    import {
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import {
+      doc,
+      setDoc,
+      getDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const userEmailEl = document.getElementById("user-email");
+    const btnLogout = document.getElementById("btn-logout");
+
+    // Se não estiver logado, manda de volta pro login
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      userEmailEl.textContent = user.email || "";
+
+      // Carregar chaves já existentes (se houver)
+      await carregarChave(user.uid, "1d");
+      await carregarChave(user.uid, "7d");
+      await carregarChave(user.uid, "15d");
+      await carregarChave(user.uid, "30d");
+    });
+
+    btnLogout.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "index.html";
+    });
+
+    // Gera uma chave aleatória (formato simples)
+    function gerarCodigoPlano(plano) {
+      const rand = () =>
+        Math.random().toString(36).substring(2, 8).toUpperCase();
+      // Você pode alterar esse formato se quiser
+      return `NUG-${plano.toUpperCase()}-${rand()}-${rand()}`;
+    }
+
+    // Baixar token.txt com o código dentro
+    function baixarToken(nomeArquivo, conteudo) {
+      const blob = new Blob([conteudo], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = nomeArquivo;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Carrega chave do Firestore e mostra na tela (se existir)
+    async function carregarChave(uid, plano) {
+      const ref = doc(db, "users", uid, "keys", plano);
+      const snap = await getDoc(ref);
+      const codeEl = document.getElementById("code-" + plano);
+
+      if (snap.exists()) {
+        const data = snap.data();
+        codeEl.textContent = data.codigo || "Chave cadastrada, mas sem código.";
+      } else {
+        codeEl.textContent = "Nenhuma chave gerada ainda para este plano.";
+      }
+    }
+
+    // Gera nova chave (ou sobrescreve a antiga) para um plano
+    async function gerarChave(uid, plano) {
+      const codigo = gerarCodigoPlano(plano);
+      const diasPorPlano = {
+        "1d": 1,
+        "7d": 7,
+        "15d": 15,
+        "30d": 30
+      };
+
+      const ref = doc(db, "users", uid, "keys", plano);
+      await setDoc(ref, {
+        plano: plano,
+        dias: diasPorPlano[plano] || null,
+        codigo,
+        criadoEm: serverTimestamp()
+      }, { merge: true });
+
+      const codeEl = document.getElementById("code-" + plano);
+      if (codeEl) {
+        codeEl.textContent = codigo;
+      }
+
+      return codigo;
+    }
+
+    // Delegação de eventos para os botões de gerar / download
+    document.addEventListener("click", async (e) => {
+      const btn = e.target.closest("button.btn-small");
+      if (!btn) return;
+
+      const acao = btn.getAttribute("data-action");
+      const plano = btn.getAttribute("data-plano");
+      if (!acao || !plano) return;
+
+      const user = auth.currentUser;
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      if (acao === "gerar") {
+        const codigo = await gerarChave(user.uid, plano);
+        // opcional: já baixar automaticamente
+        // baixarToken(`token-${plano}.txt`, codigo);
+      }
+
+      if (acao === "download") {
+        const ref = doc(db, "users", user.uid, "keys", plano);
+        const snap = await getDoc(ref);
+        if (!snap.exists()) {
+          alert("Nenhuma chave gerada ainda para este plano.");
+          return;
+        }
+        const data = snap.data();
+        if (!data.codigo) {
+          alert("Chave inválida ou sem código cadastrado.");
+          return;
+        }
+        baixarToken(`token-${plano}.txt`, data.codigo);
+      }
+    });
+  </script>
+</body>
+</html>

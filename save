@@ -1,0 +1,24 @@
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyA-32eI6wB5St-8n7krA9JZYdXdOmDQWg8",
+  authDomain: "nugkey-scripts.firebaseapp.com",
+  projectId: "nugkey-scripts",
+  storageBucket: "nugkey-scripts.firebasestorage.app",
+  messagingSenderId: "750447436200",
+  appId: "1:750447436200:web:2b499d2e622bdc78187d9d"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+
+
+cd functions
+npm install mercadopago
+cd ..
+firebase functions:config:set mp.access_token="APP_USR-7652911138781849-120507-0bc635b500c480a5e79fd681c7103525-1786574018"
